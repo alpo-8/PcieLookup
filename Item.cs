@@ -28,16 +28,16 @@ namespace PcieLookup
 
     public enum Lane
     {
-        X16,
-        X8,
-        X4,
-        X0
+        X16 = 0,
+        X8 = 1,
+        X4 = 2,
+        X0 = 3
     }
 
     public enum To
     {
-        CPU1,
-        CPU2,
-        PCH
+        CPU1 = 0,
+        CPU2 = 1,
+        PCH = 2
     }
 }

@@ -31,9 +31,7 @@ namespace PcieLookup
 
         private static void Place(Item item, Dictionary<int, Item> config)
         {
-            var avail = Capability;
-            foreach (var (busySlot, v) in config)
-                avail.Remove(busySlot);
+            var avail = Capability.Where(x => !config.ContainsKey(x.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
 
             if (avail.ContainsKey(4) && config.ContainsKey(3) && config[3].Required.Lane == Lane.X16)
                 avail[4].Lane = Lane.X0;
@@ -43,21 +41,21 @@ namespace PcieLookup
             var res1 = new List<int>();
             
             foreach (var (key, value) in avail)
-                if (value.Lane<=item.Required.Lane && value.To<=item.Required.To && key+item.Size-1<=avail.Keys.Max())
+                if (value.Lane<=item.Required.Lane && value.To<=item.Required.To && avail.Keys.Min()-1<=key-item.Size) // key+item.Size-1<=avail.Keys.Max()
                     res1.Add(key);
             
-            var res2 = res1;
+            var res2 = res1.ToList();
             
             foreach (var slot in res1)
                 for (var i = 0; i < item.Size; i++)
-                    if (config.ContainsKey(slot + i))
+                    if (config.ContainsKey(slot - i))
                         res2.Remove(slot);
             
             foreach (var slot in res2)
             {
                 var cfg = config.ToDictionary(kv => kv.Key, kv => kv.Value);
                 for (var i = 0; i < item.Size; i++)
-                    cfg.Add(slot+i, item);
+                    cfg.Add(slot-i, item);
                 Configs.Add(cfg);
             }
             
