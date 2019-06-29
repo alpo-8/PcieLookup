@@ -6,19 +6,19 @@ namespace PcieLookup
 {
     public static class Rig
     {
-        public static Dictionary<int, Link> Capability = new Dictionary<int, Link>
+        private static readonly Dictionary<int, Link> Capability = new Dictionary<int, Link>
         {
-            { 7, Link(Lane.X16, To.CPU1)},
-            { 6, Link(Lane.X16, To.CPU2)},
-            { 5, Link(Lane.X16, To.CPU1)},
-            { 4, Link(Lane.X8, To.CPU2)},
-            { 3, Link(Lane.X16, To.CPU2)},
-            { 2, Link(Lane.X8, To.CPU1)},
-            { 1, Link(Lane.X16, To.CPU2)}
+            { 7, new Link(Lane.X16, To.CPU1)},
+            { 6, new Link(Lane.X16, To.CPU2)},
+            { 5, new Link(Lane.X16, To.CPU1)},
+            { 4, new Link(Lane.X8, To.CPU2)},
+            { 3, new Link(Lane.X16, To.CPU2)},
+            { 2, new Link(Lane.X8, To.CPU1)},
+            { 1, new Link(Lane.X16, To.CPU2)}
         };
-        
-        private static Link Link(Lane lane, To to) =>
-            new Link(lane, to);
+
+        private static List<Dictionary<int, Item>> Configs { get; set; } =
+            new List<Dictionary<int, Item>> {new Dictionary<int, Item>()};
         
         public static void Display() =>
             Configs.Distinct().ToList().ForEach(y =>
@@ -26,8 +26,6 @@ namespace PcieLookup
                 Console.WriteLine();
                 y.OrderByDescending(x=>x.Key).ToList().ForEach(x => Console.WriteLine($"{x.Key.ToString()}\t{x.Value.Name}"));
             });
-
-        private static List<Dictionary<int, Item>> Configs { get; set; }
 
         private static void Place(Item item, Dictionary<int, Item> config)
         {
@@ -38,11 +36,10 @@ namespace PcieLookup
             if (avail.ContainsKey(3) && config.ContainsKey(4) && config[4].Required.Lane < Lane.X0)
                 avail[3].Lane = Lane.X8;
             
-            var res1 = new List<int>();
-            
-            foreach (var (key, value) in avail)
-                if (value.Lane<=item.Required.Lane && value.To<=item.Required.To && avail.Keys.Min()-1<=key-item.Size) // key+item.Size-1<=avail.Keys.Max()
-                    res1.Add(key);
+            var res1 = //new List<int>();
+                avail.Where(i =>
+                i.Value.Lane <= item.Required.Lane && i.Value.To <= item.Required.To &&
+                avail.Keys.Min() - 1 <= i.Key - item.Size).Select(kv => kv.Key).ToList();
             
             var res2 = res1.ToList();
             
@@ -50,7 +47,7 @@ namespace PcieLookup
                 for (var i = 0; i < item.Size; i++)
                     if (config.ContainsKey(slot - i))
                         res2.Remove(slot);
-            
+
             foreach (var slot in res2)
             {
                 var cfg = config.ToDictionary(kv => kv.Key, kv => kv.Value);
@@ -62,11 +59,8 @@ namespace PcieLookup
             Configs.Remove(config);
         }
 
-        private static void Place(Item item)
-        {
-            Configs ??= new List<Dictionary<int, Item>> {new Dictionary<int, Item>()};
+        private static void Place(Item item) =>
             Configs.ToList().Where(x => !x.ContainsValue(item)).ToList().ForEach(x => Place(item, x));
-        }
 
         public static void Place(IEnumerable<Item> items) => 
             items.ToList().ForEach(Place);

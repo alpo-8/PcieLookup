@@ -10,9 +10,9 @@ namespace PcieLookup
         {
             var devices = new List<Item>
             {
-                new Item("GTX 1080 Ti", new Link(Lane.X16, To.CPU1), 3),
-                new Item("GTX TITAN", new Link(Lane.X16, To.CPU2), 2),
-                new Item("HYPER M.2 X16 CARD", new Link(Lane.X8, To.CPU2))
+                //new Item("GTX 1080 Ti", new Link(Lane.X16, To.CPU1), 3),
+                new Item("GTX TITAN", new Link(Lane.X16, To.CPU1), 2),
+                new Item("HYPER M.2 X16 CARD", new Link(Lane.X16, To.CPU2))
             };
             
             Permutate(devices, devices.Count).ToList()

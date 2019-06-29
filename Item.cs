@@ -13,31 +13,4 @@ namespace PcieLookup
             Size = size;
         }
     }
-
-    public sealed class Link
-    {
-        public Lane Lane { get; set; }
-        public To To { get; set; }
-
-        public Link(Lane lane, To to)
-        {
-            Lane = lane;
-            To = to;
-        }
-    }
-
-    public enum Lane
-    {
-        X16 = 0,
-        X8 = 1,
-        X4 = 2,
-        X0 = 3
-    }
-
-    public enum To
-    {
-        CPU1 = 0,
-        CPU2 = 1,
-        PCH = 2
-    }
 }
