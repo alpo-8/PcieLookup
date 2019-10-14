@@ -4,7 +4,6 @@ namespace PcieLookup
     {
         X16 = 0,
         X8 = 1,
-        X4 = 2,
-        X0 = 3
+        X0 = 2
     }
 }
